@@ -1,6 +1,4 @@
 <?php
-@ini_set('upload_max_filesize', '20M');
-@ini_set('post_max_size', '25M');
 // Nastavení připojení (v Dockeru)
 $host = 'db';
 $db   = 'objednavkovy_system';

@@ -64,6 +64,7 @@
            'amount'        => $amount,
            'currency'      => $currency,
            'message'       => mb_substr($message, 0, 60),
+           'branding'      => 'false',
            'size'          => 250
        ];
        return "https://api.paylibo.com/paylibo/generator/czech/image?" . http_build_query($params);
