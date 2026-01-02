@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['message']) || isset(
         $ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
         
         // --- SEM PATŘÍ POLE ALLOWED ---
-        $allowed = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'zip', 'rar', 'docx', 'txt', 'jar'];
+        $allowed = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'zip', 'rar', 'docx', 'txt'];
         
         if (in_array($ext, $allowed)) {
             // Vygenerování unikátního názvu
@@ -89,6 +89,7 @@ function getQRPlatba($iban, $amount, $currency = 'CZK', $message = '') {
         'amount' => number_format((float)$amount, 2, '.', ''),
         'currency' => $currency,
         'message' => mb_substr($message, 0, 60),
+        'branding' => 'false',
         'size' => 250
     ];
     return "https://api.paylibo.com/paylibo/generator/czech/image?" . http_build_query($params);

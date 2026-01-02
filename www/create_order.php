@@ -94,9 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <label class="block text-gray-700 text-sm font-bold mb-2 pl-1 text-blue-600">Přílohy (můžete vybrat více souborů)</label>
                 <div class="relative">
-                    <input type="file" name="images[]" id="file-input" multiple 
-                           class="w-full border-2 border-dashed border-gray-200 p-8 rounded-2xl bg-gray-50 hover:bg-white hover:border-blue-400 transition cursor-pointer text-center text-sm text-gray-500"
-                           onchange="updateFileList()">
+                    <input type="file" name="image" id="file-input"
+       class="w-full border-2 border-dashed border-gray-200 p-8 rounded-2xl bg-gray-50
+              hover:bg-white hover:border-blue-400 transition cursor-pointer
+              text-center text-sm text-gray-500"
+       onchange="updateFileList()">
                 </div>
                 
                 <div id="file-list" class="mt-4 space-y-2"></div>
@@ -112,33 +114,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 
-    <script>
-    function updateFileList() {
-        const input = document.getElementById('file-input');
-        const list = document.getElementById('file-list');
-        const resetBtn = document.getElementById('reset-btn');
-        list.innerHTML = '';
-        
-        if (input.files.length > 0) {
-            resetBtn.classList.remove('hidden');
-            Array.from(input.files).forEach(file => {
-                const item = document.createElement('div');
-                item.className = 'text-xs text-gray-600 flex justify-between items-center bg-gray-50 border p-3 rounded-lg';
-                item.innerHTML = `
-                    <span class="flex items-center gap-2">📎 <strong>${file.name}</strong></span>
-                    <span class="text-gray-400">${(file.size/1024).toFixed(1)} KB</span>
-                `;
-                list.appendChild(item);
-            });
-        } else {
-            resetBtn.classList.add('hidden');
-        }
-    }
+<script>
+function updateFileList() {
+    const input = document.getElementById('file-input');
+    const list = document.getElementById('file-list');
+    const resetBtn = document.getElementById('reset-btn');
 
-    function resetFiles() {
-        document.getElementById('file-input').value = "";
-        updateFileList();
+    list.innerHTML = '';
+
+    if (input.files.length === 1) {
+        resetBtn.classList.remove('hidden');
+
+        const file = input.files[0];
+        const item = document.createElement('div');
+        item.className = 'text-xs text-gray-600 flex justify-between items-center bg-gray-50 border p-3 rounded-lg';
+        item.innerHTML = `
+            <span class="flex items-center gap-2">📎 <strong>${file.name}</strong></span>
+            <span class="text-gray-400">${(file.size/1024).toFixed(1)} KB</span>
+        `;
+        list.appendChild(item);
+    } else {
+        resetBtn.classList.add('hidden');
     }
-    </script>
+}
+
+function resetFiles() {
+    const input = document.getElementById('file-input');
+    input.value = '';
+    updateFileList();
+}
+</script>
+
 </body>
 </html>
