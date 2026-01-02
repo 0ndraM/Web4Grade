@@ -35,7 +35,7 @@ if ($role === 'admin' && isset($_POST['update_order'])) {
     exit;
 }
 
-// 4. Logika pro Chat: Odeslání zprávy (Vylepšená verze)
+// 4. Logika pro Chat: Odeslání zprávy (Vylepšená verze s kontrolou přípon)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['message']) || isset($_FILES['chat_file']))) {
     $msg = isset($_POST['message']) ? trim($_POST['message']) : '';
     $file_name = null;
@@ -45,23 +45,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['message']) || isset(
         $original_name = $_FILES['chat_file']['name'];
         $ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
         
-        // Vygenerování unikátního názvu
-        $file_name = bin2hex(random_bytes(8)) . "_chat_" . time() . "." . $ext;
-        $target_path = "./uploads/" . $file_name;
+        // --- SEM PATŘÍ POLE ALLOWED ---
+        $allowed = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'zip', 'rar', 'docx', 'txt', 'jar'];
+        
+        if (in_array($ext, $allowed)) {
+            // Vygenerování unikátního názvu
+            $file_name = bin2hex(random_bytes(8)) . "_chat_" . time() . "." . $ext;
+            $target_path = "./uploads/" . $file_name;
 
-        if (!move_uploaded_file($_FILES['chat_file']['tmp_name'], $target_path)) {
-            // Pokud selže přesun, vynulujeme název, aby se do DB neuložil nefunkční odkaz
-            $file_name = null; 
+            if (!move_uploaded_file($_FILES['chat_file']['tmp_name'], $target_path)) {
+                $file_name = null; 
+            }
         }
     }
 
-    // Uložíme jen pokud je tam text NEBO soubor
+    // Uložíme jen pokud je tam text NEBO povolený soubor
     if (!empty($msg) || $file_name !== null) {
         $stmt = $pdo->prepare("INSERT INTO messages (order_id, sender_id, message_text, file_path) VALUES (?, ?, ?, ?)");
         $stmt->execute([$order_id, $user_id, $msg, $file_name]);
     }
     
-    // Pro AJAX požadavky okamžitě ukončíme skript
     if (isset($_POST['ajax']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) {
         exit;
     }
