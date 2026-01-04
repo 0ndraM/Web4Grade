@@ -266,7 +266,7 @@ $accountNumber = ltrim(substr($pure_iban, 8), '0');
          
          async function fetchMessages() {
              try {
-                 const response = await fetch(`fetch_messages.php?order_id=${orderId}&last_id=${lastMessageId}`);
+                 const response = await fetch(`includes/fetch_messages.php?order_id=${orderId}&last_id=${lastMessageId}`);
                  const newMessages = await response.json();
          
                  if (newMessages.length > 0) {
@@ -281,33 +281,41 @@ $accountNumber = ltrim(substr($pure_iban, 8), '0');
          }
          
          function appendMessage(msg) {
-             const isMe = (msg.sender_id == userId);
-             const time = msg.sent_at ? msg.sent_at.substring(11, 16) : '--:--';
-             
-             let fileHtml = '';
-             if (msg.file_path) {
-                 const ext = msg.file_path.split('.').pop().toLowerCase();
-                 const isImg = ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
-                 
-                 if (isImg) {
-                     fileHtml = `<a href="uploads/${msg.file_path}" target="_blank"><img src="uploads/${msg.file_path}" class="rounded-lg mb-2 max-h-48 w-full object-cover"></a>`;
-                 } else {
-                     fileHtml = `<a href="uploads/${msg.file_path}" target="_blank" class="block bg-black/10 p-2 rounded-lg mb-2 text-[11px] underline font-bold">📎 Soubor .${ext}</a>`;
-                 }
-             }
-         
-             const msgHtml = `
-                 <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                     <div class="max-w-[85%] md:max-w-[70%]">
-                         <div class="p-3 shadow-sm text-sm ${isMe ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none' : 'bg-white border rounded-2xl rounded-tl-none text-gray-800'}">
-                             ${fileHtml}
-                             ${msg.message_text ? msg.message_text.replace(/\n/g, '<br>') : ''}
-                         </div>
-                         <p class="text-[9px] text-gray-400 mt-1 ${isMe ? 'text-right' : 'text-left'}">${time}</p>
-                     </div>
-                 </div>`;
-             chatBox.insertAdjacentHTML('beforeend', msgHtml);
-         }
+    const isMe = msg.sender_id == <?= $user_id ?>;
+    const time = new Date(msg.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    // Logika pro zobrazení avatara nebo iniciály
+    let avatarHtml = '';
+    if (msg.avatar_path) {
+        avatarHtml = `<img src="uploads/${msg.avatar_path}" class="w-8 h-8 rounded-full object-cover border border-gray-200">`;
+    } else {
+        avatarHtml = `<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600 border border-gray-200">
+                        ${msg.username.charAt(0).toUpperCase()}
+                      </div>`;
+    }
+
+    const fileHtml = msg.file_path ? 
+        `<a href="uploads/${msg.file_path}" target="_blank" class="block mb-2 p-2 bg-black/5 rounded text-xs font-bold underline">📎 Soubor: ${msg.file_path.split('_').pop()}</a>` : '';
+
+    const msgHtml = `
+        <div class="flex ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 mb-4">
+            <div class="flex-shrink-0 mb-5">
+                ${avatarHtml}
+            </div>
+            
+            <div class="max-w-[75%] md:max-w-[60%]">
+                <p class="text-[10px] text-gray-400 mb-1 px-1 ${isMe ? 'text-right' : 'text-left'}">${msg.username}</p>
+                <div class="p-3 shadow-sm text-sm ${isMe ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none' : 'bg-white border rounded-2xl rounded-tl-none text-gray-800'}">
+                    ${fileHtml}
+                    ${msg.message_text ? msg.message_text.replace(/\n/g, '<br>') : ''}
+                </div>
+                <p class="text-[9px] text-gray-400 mt-1 ${isMe ? 'text-right' : 'text-left'}">${time}</p>
+            </div>
+        </div>`;
+    
+    chatBox.insertAdjacentHTML('beforeend', msgHtml);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
          
          document.getElementById('chat-form').onsubmit = async function(e) {
              e.preventDefault();

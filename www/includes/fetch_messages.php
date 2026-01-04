@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'config/db.php';
+require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || !isset($_GET['order_id'])) {
     exit;
@@ -11,7 +11,7 @@ $user_id = $_SESSION['user_id'];
 // Načteme zprávy, které jsou novější než poslední ID, které už prohlížeč má
 $last_id = isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0;
 
-$stmt = $pdo->prepare("SELECT m.id, m.sender_id, m.message_text, m.file_path, m.sent_at, u.username 
+$stmt = $pdo->prepare("SELECT m.id, m.sender_id, m.message_text, m.file_path, m.sent_at, u.username, u.avatar_path 
                        FROM messages m 
                        JOIN users u ON m.sender_id = u.id 
                        WHERE m.order_id = ? AND m.id > ? 

@@ -12,19 +12,33 @@ $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'];
 $username = $_SESSION['username'];
 
+// Řazení
+$sort = $_GET['sort'] ?? 'default';
+$orderBy = "unread_count DESC, o.created_at DESC";
+
+if ($role === 'admin') {
+    switch ($sort) {
+        case 'date_desc': $orderBy = "o.created_at DESC"; break;
+        case 'date_asc': $orderBy = "o.created_at ASC"; break;
+        case 'price_desc': $orderBy = "o.price DESC"; break;
+        case 'price_asc': $orderBy = "o.price ASC"; break;
+        case 'status': $orderBy = "o.status ASC"; break;
+    }
+}
+
 // Načtení objednávek podle role
 if ($role === 'admin') {
     $stmt = $pdo->query("SELECT o.*, u.username as client_name,
         (SELECT COUNT(*) FROM messages m WHERE m.order_id = o.id AND m.sent_at > o.admin_last_read_at AND m.sender_id != $user_id) as unread_count
         FROM orders o 
         JOIN users u ON o.client_id = u.id 
-        ORDER BY unread_count DESC, o.created_at DESC");
+        ORDER BY $orderBy");
 } else {
     $stmt = $pdo->prepare("SELECT o.*,
         (SELECT COUNT(*) FROM messages m WHERE m.order_id = o.id AND m.sent_at > o.client_last_read_at AND m.sender_id != ?) as unread_count
         FROM orders o 
         WHERE o.client_id = ? 
-        ORDER BY unread_count DESC, o.created_at DESC");
+        ORDER BY $orderBy");
     $stmt->execute([$user_id, $user_id]);
 }
 $orders = $stmt->fetchAll();
@@ -41,6 +55,21 @@ function getStatusBadge($status) {
     ];
     return $colors[$status] ?? 'bg-gray-100 text-gray-800';
 }
+
+// Statistiky pro admina
+$stats = ['new' => 0, 'active' => 0, 'finished' => 0];
+if ($role === 'admin') {
+    foreach ($orders as $o) {
+        if ($o['status'] === 'new') $stats['new']++;
+        elseif ($o['status'] === 'finished') $stats['finished']++;
+        else $stats['active']++;
+    }
+}
+
+// Načtení dat aktuálního uživatele pro horní lištu
+$stmtU = $pdo->prepare("SELECT avatar_path FROM users WHERE id = ?");
+$stmtU->execute([$user_id]);
+$currentUser = $stmtU->fetch();
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -54,30 +83,69 @@ function getStatusBadge($status) {
 
 <nav class="bg-white shadow-sm mb-4 md:mb-8">
     <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
-        <h1 class="text-lg md:text-xl font-bold text-gray-800">Moje Zakázky</h1>
-        <div class="flex items-center gap-4">
-            <a href="account_settings.php" class="text-gray-500 hover:text-blue-600 transition" title="Nastavení účtu">
-                ⚙️ <span class="hidden md:inline ml-1">Nastavení</span>
+        <h1 class="text-lg md:text-xl font-bold text-gray-800 tracking-tight"><?= $role === 'admin' ? 'Všechny objednávky' : 'Moje objednávky' ?></h1>
+        
+        <div class="flex items-center gap-3 md:gap-6">
+            <a href="account_settings.php" class="flex items-center gap-3 group px-2 py-1 rounded-full hover:bg-gray-50 transition">
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs font-bold text-gray-800 leading-none"><?= htmlspecialchars($username) ?></p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest leading-none mt-1">Nastavení</p>
+                </div>
+                
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-200 group-hover:ring-blue-400 transition">
+                    <?php if (!empty($currentUser['avatar_path'])): ?>
+                        <img src="uploads/<?= htmlspecialchars($currentUser['avatar_path']) ?>" class="w-full h-full object-cover">
+                    <?php else: ?>
+                        <span class="text-white font-bold text-sm"><?= strtoupper(substr($username, 0, 1)) ?></span>
+                    <?php endif; ?>
+                </div>
             </a>
-            <a href="logout.php" class="bg-red-50 text-red-500 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition">Odhlásit</a>
+
+            <div class="h-8 w-[1px] bg-gray-200 hidden sm:block"></div>
+
+            <a href="logout.php" class="text-xs font-bold text-red-500 hover:text-red-700 uppercase tracking-wider transition">
+                Odhlásit
+            </a>
         </div>
     </div>
 </nav>
 
     <main class="max-w-7xl mx-auto px-4">
         
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-semibold text-gray-800">
-                <?= $role === 'admin' ? 'Všechny objednávky' : 'Moje objednávky' ?>
-            </h2>
-            <?php if ($role === 'client'): ?>
-                <a href="create_order.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow-md transition">
-                    + Nová objednávka
-                </a>
-            <?php endif; ?>
+        <?php if ($role === 'admin'): ?>
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
+                <p class="text-blue-600 text-xs font-bold uppercase tracking-wider">Nové</p>
+                <p class="text-3xl font-black text-blue-800"><?= $stats['new'] ?></p>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 text-center">
+                <p class="text-purple-600 text-xs font-bold uppercase tracking-wider">V procesu</p>
+                <p class="text-3xl font-black text-purple-800"><?= $stats['active'] ?></p>
+            </div>
+            <div class="bg-green-50 p-4 rounded-xl border border-green-100 text-center">
+                <p class="text-green-600 text-xs font-bold uppercase tracking-wider">Hotovo</p>
+                <p class="text-3xl font-black text-green-800"><?= $stats['finished'] ?></p>
+            </div>
         </div>
+        <?php endif; ?>
+
 <div class="max-w-7xl mx-auto px-4">
     
+    <?php if ($role === 'admin'): ?>
+    <div class="flex justify-end mb-4">
+        <form method="GET" class="flex items-center gap-2">
+            <label class="text-xs font-bold text-gray-500 uppercase">Řadit:</label>
+            <select name="sort" onchange="this.form.submit()" class="text-sm border-gray-300 rounded-lg p-2 bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="default" <?= $sort=='default'?'selected':'' ?>>⚡ Dle aktivity</option>
+                <option value="date_desc" <?= $sort=='date_desc'?'selected':'' ?>>📅 Nejnovější</option>
+                <option value="date_asc" <?= $sort=='date_asc'?'selected':'' ?>>📅 Nejstarší</option>
+                <option value="price_desc" <?= $sort=='price_desc'?'selected':'' ?>>💰 Nejdražší</option>
+                <option value="status" <?= $sort=='status'?'selected':'' ?>>📌 Dle stavu</option>
+            </select>
+        </form>
+    </div>
+    <?php endif; ?>
+
     <div class="hidden md:block bg-white shadow-md rounded-xl overflow-hidden">
         <table class="min-w-full">
             <thead class="bg-gray-50 border-b">
@@ -152,6 +220,14 @@ function getStatusBadge($status) {
 </div>
 </div>
     </main>
+
+    <?php if ($role === 'client'): ?>
+        <a href="create_order.php" title="Nová objednávka" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-blue-700 hover:scale-110 transition-all z-50">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+        </a>
+    <?php endif; ?>
 
 </body>
 </html>
