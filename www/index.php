@@ -46,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             <div class="text-2xl font-black text-blue-600 tracking-tight">WEB<span class="text-gray-800">MASTER</span></div>
             <div class="space-x-4">
                 <a href="#vlastnosti" class="text-gray-600 hover:text-blue-600 hidden md:inline">Jak to funguje</a>
-                <a href="register.php" class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition">Registrace</a>
                 <a href="#login" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-200">Přihlásit se</a>
             </div>
         </div>
