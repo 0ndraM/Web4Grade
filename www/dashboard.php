@@ -81,37 +81,10 @@ $currentUser = $stmtU->fetch();
 </head>
 <body class="bg-gray-50">
 
-<nav class="bg-white shadow-sm mb-4 md:mb-8">
-    <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
-        <h1 class="text-lg md:text-xl font-bold text-gray-800 tracking-tight"><?= $role === 'admin' ? 'Všechny objednávky' : 'Moje objednávky' ?></h1>
-        
-        <div class="flex items-center gap-3 md:gap-6">
-            <a href="account_settings.php" class="flex items-center gap-3 group px-2 py-1 rounded-full hover:bg-gray-50 transition">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-gray-800 leading-none"><?= htmlspecialchars($username) ?></p>
-                    <p class="text-[10px] text-gray-400 uppercase tracking-widest leading-none mt-1">Nastavení</p>
-                </div>
-                
-                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-200 group-hover:ring-blue-400 transition">
-                    <?php if (!empty($currentUser['avatar_path'])): ?>
-                        <img src="uploads/<?= htmlspecialchars($currentUser['avatar_path']) ?>" class="w-full h-full object-cover">
-                    <?php else: ?>
-                        <span class="text-white font-bold text-sm"><?= strtoupper(substr($username, 0, 1)) ?></span>
-                    <?php endif; ?>
-                </div>
-            </a>
-
-            <div class="h-8 w-[1px] bg-gray-200 hidden sm:block"></div>
-
-            <a href="logout.php" class="text-xs font-bold text-red-500 hover:text-red-700 uppercase tracking-wider transition">
-                Odhlásit
-            </a>
-        </div>
-    </div>
-</nav>
+ <?php include 'includes/header.php'; ?>
 
     <main class="max-w-7xl mx-auto px-4">
-        
+         <h1 class="text-lg md:text-xl font-bold text-gray-800 tracking-tight"><?= $role === 'admin' ? 'Všechny objednávky' : 'Moje objednávky' ?></h1>
         <?php if ($role === 'admin'): ?>
         <div class="grid grid-cols-3 gap-4 mb-8">
             <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">

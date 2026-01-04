@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 md:p-8">
-
+    
     <div class="max-w-2xl mx-auto mb-6 flex items-center justify-between px-4 md:px-0">
         <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center gap-2 font-bold">
             <span>←</span> Zpět na Dashboard

@@ -13,30 +13,29 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
-    $email = trim($_POST['email']);
     $password = $_POST['password'];
     $password_confirm = $_POST['password_confirm'];
 
     // Základní validace
-    if (empty($username) || empty($email) || empty($password)) {
+    if (empty($username) || empty($password)) {
         $error = "Všechna pole jsou povinná.";
     } elseif ($password !== $password_confirm) {
         $error = "Hesla se neshodují.";
     } elseif (strlen($password) < 6) {
         $error = "Heslo musí mít alespoň 6 znaků.";
     } else {
-        // Kontrola, zda uživatel nebo email již neexistuje
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-        $stmt->execute([$username, $email]);
+        // Kontrola, zda uživatel již neexistuje
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? ");
+        $stmt->execute([$username]);
         if ($stmt->fetch()) {
-            $error = "Uživatelské jméno nebo e-mail již existuje.";
+            $error = "Uživatelské jméno již existuje.";
         } else {
             // Hashování hesla a uložení uživatele
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, 'client')");
+            $stmt = $pdo->prepare("INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'client')");
             
             try {
-                $stmt->execute([$username, $email, $hashed_password]);
+                $stmt->execute([$username, $hashed_password]);
                 
                 // Automatické přihlášení po registraci
                 $_SESSION['user_id'] = $pdo->lastInsertId();
@@ -75,11 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Uživatelské jméno</label>
                 <input type="text" name="username" value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">E-mail</label>
-                <input type="email" name="email" value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
 
             <div class="mb-4">

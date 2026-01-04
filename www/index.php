@@ -2,12 +2,6 @@
 session_start();
 require_once 'config/db.php';
 
-// Pokud už je uživatel přihlášen, pošleme ho na dashboard
-if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
-    exit;
-}
-
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $username = trim($_POST['username']);
@@ -41,15 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 </head>
 <body class="bg-gray-50 font-sans">
 
-    <nav class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="text-2xl font-black text-blue-600 tracking-tight">WEB<span class="text-gray-800">MASTER</span></div>
-            <div class="space-x-4">
-                <a href="#vlastnosti" class="text-gray-600 hover:text-blue-600 hidden md:inline">Jak to funguje</a>
-                <a href="#login" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-200">Přihlásit se</a>
-            </div>
-        </div>
-    </nav>
+    <?php include 'includes/header.php'; ?>
 
     <header class="hero-gradient text-white py-20 px-6">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
@@ -98,7 +84,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     </section>
 
     <section id="login" class="bg-gray-100 py-20 px-6">
-<div class="w-[90%] max-w-md mx-auto bg-white p-6 md:p-10 rounded-3xl shadow-2xl">            <h2 class="text-3xl font-bold mb-2 text-center text-gray-800">Vítejte zpět</h2>
+        <div class="w-[90%] max-w-md mx-auto bg-white p-6 md:p-10 rounded-3xl shadow-2xl">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <h2 class="text-3xl font-bold mb-2 text-center text-gray-800">Jste přihlášen</h2>
+                <p class="text-center text-gray-500 mb-8">Vítejte zpět, <?= htmlspecialchars($_SESSION['username']) ?></p>
+                <a href="dashboard.php" class="block text-center w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                    Přejít na Dashboard
+                </a>
+            <?php else: ?>
+            <h2 class="text-3xl font-bold mb-2 text-center text-gray-800">Vítejte zpět</h2>
             <p class="text-center text-gray-500 mb-8">Přihlaste se ke svému účtu</p>
 
             <?php if ($error): ?>
@@ -123,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             <p class="mt-8 text-center text-gray-600">
                 Nemáš účet? <a href="register.php" class="text-blue-600 font-bold hover:underline">Zaregistruj se</a>
             </p>
+            <?php endif; ?>
         </div>
     </section>
 

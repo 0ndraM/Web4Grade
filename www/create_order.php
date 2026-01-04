@@ -67,7 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Nová zakázka</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 p-4 md:p-8">
+<body class="bg-gray-50">
+
+     <?php include 'includes/header.php'; ?>
     <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Nová zakázka</h2>
