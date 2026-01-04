@@ -52,14 +52,14 @@ function getStatusBadge($status) {
 </head>
 <body class="bg-gray-50">
 
-    <nav class="bg-white shadow-sm mb-4 md:mb-8">
-    <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex flex-wrap justify-between items-center gap-2">
-        <h1 class="text-lg md:text-xl font-bold text-gray-800">Systém</h1>
-        <div class="flex items-center gap-2 md:gap-4 text-xs md:text-sm">
-            <span class="text-gray-600 hidden xs:inline">
-                <strong><?= htmlspecialchars($username) ?></strong>
-            </span>
-            <a href="logout.php" class="bg-red-50 text-red-500 px-3 py-1 rounded-md hover:bg-red-100 transition">Odhlásit</a>
+<nav class="bg-white shadow-sm mb-4 md:mb-8">
+    <div class="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
+        <h1 class="text-lg md:text-xl font-bold text-gray-800">Moje Zakázky</h1>
+        <div class="flex items-center gap-4">
+            <a href="account_settings.php" class="text-gray-500 hover:text-blue-600 transition" title="Nastavení účtu">
+                ⚙️ <span class="hidden md:inline ml-1">Nastavení</span>
+            </a>
+            <a href="logout.php" class="bg-red-50 text-red-500 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition">Odhlásit</a>
         </div>
     </div>
 </nav>
