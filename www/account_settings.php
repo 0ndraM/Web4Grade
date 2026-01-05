@@ -12,7 +12,7 @@ $user_id = $_SESSION['user_id'];
 $success = '';
 $error = '';
 
-// 1. Načtení aktuálních dat uživatele (včetně cesty k avataru)
+// 1. Načtení aktuálních dat uživatele
 $stmt = $pdo->prepare("SELECT username, role, avatar_path FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
@@ -27,27 +27,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
         
         if (in_array($ext, $allowed)) {
-            // Vytvoříme unikátní název pro avatar
             $new_avatar_name = "avatar_" . $user_id . "_" . time() . "." . $ext;
-            $target_path = "./uploads/" . $new_avatar_name;
+            // Sjednocení cesty do assets/pfp/ pro konzistenci s chatem
+            $target_path = "./assets/pfp/" . $new_avatar_name;
 
             if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target_path)) {
-                // Smažeme starý fyzický soubor, pokud existoval
-                if (!empty($user['avatar_path']) && file_exists("./uploads/" . $user['avatar_path'])) {
-                    unlink("./uploads/" . $user['avatar_path']);
+                // Smazání starého souboru
+                if (!empty($user['avatar_path']) && file_exists("./assets/pfp/" . $user['avatar_path'])) {
+                    unlink("./assets/pfp/" . $user['avatar_path']);
                 }
                 
-                // Uložíme nový název do DB
                 $stmt = $pdo->prepare("UPDATE users SET avatar_path = ? WHERE id = ?");
                 $stmt->execute([$new_avatar_name, $user_id]);
                 
                 $success = "Profilový obrázek byl úspěšně změněn.";
-                $user['avatar_path'] = $new_avatar_name; // Aktualizace pro zobrazení v náhledu
+                $user['avatar_path'] = $new_avatar_name; 
             } else {
-                $error = "Chyba při ukládání obrázku na server.";
+                $error = "Chyba při ukládání obrázku.";
             }
         } else {
-            $error = "Nepovolený formát obrázku (povoleno: JPG, PNG, WEBP).";
+            $error = "Nepovolený formát (JPG, PNG, WEBP).";
         }
     }
 
@@ -59,7 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($new_pass === $conf_pass) {
             if (strlen($new_pass) >= 6) {
                 $hashed_password = password_hash($new_pass, PASSWORD_BCRYPT);
-                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                // POZOR: V DB tabulce máš pravděpodobně název sloupce password_hash (dle login skriptu)
+                $stmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
                 $stmt->execute([$hashed_password, $user_id]);
                 $success = "Heslo bylo úspěšně změněno.";
             } else {
@@ -76,101 +76,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nastavení účtu</title>
+    <title>Web4Grade | Nastavení účtu</title>
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 md:p-8">
-    
-    <div class="max-w-2xl mx-auto mb-6 flex items-center justify-between px-4 md:px-0">
-        <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center gap-2 font-bold">
-            <span>←</span> Zpět na Dashboard
-        </a>
-        <h1 class="text-xl font-bold text-gray-800">Nastavení účtu</h1>
-    </div>
+<body class="bg-gray-50 flex flex-col min-h-screen">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-        
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white">
-            <div class="flex flex-col md:flex-row items-center gap-6">
-                <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-input').click()">
-                    <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center overflow-hidden border-4 border-white/30 shadow-xl">
-                        <?php if (!empty($user['avatar_path'])): ?>
-                            <img src="uploads/<?= htmlspecialchars($user['avatar_path']) ?>" class="w-full h-full object-cover">
-                        <?php else: ?>
-                            <span class="text-4xl font-bold"><?= strtoupper(substr($user['username'], 0, 1)) ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-bold uppercase tracking-wider">
-                        Změnit foto
-                    </div>
-                </div>
+    <?php include 'includes/header.php'; ?>
+
+    <main class="flex-grow py-12 px-4">
+        <div class="max-w-2xl mx-auto mb-8 flex items-center justify-between">
+            <a href="dashboard.php" class="text-blue-600 hover:text-blue-700 flex items-center gap-2 font-black text-xs uppercase tracking-widest transition">
+                <span>←</span> Zpět na přehled
+            </a>
+        </div>
+
+        <div class="max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-gray-100 overflow-hidden">
+            
+            <div class="bg-slate-900 p-10 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 
-                <div class="text-center md:text-left">
-                    <h2 class="text-3xl font-bold"><?= htmlspecialchars($user['username']) ?></h2>
-                    <p class="text-blue-100 opacity-80 uppercase text-xs font-bold tracking-widest mt-1">
-                        <?= $user['role'] === 'admin' ? 'Administrátor systému' : 'Zákaznický účet' ?>
-                    </p>
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                    <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-input').click()">
+                        <div class="w-28 h-28 bg-white/10 rounded-[2rem] flex items-center justify-center overflow-hidden border-2 border-white/20 backdrop-blur-md shadow-2xl transition-transform group-hover:scale-105">
+                            <?php if (!empty($user['avatar_path'])): ?>
+                                <img src="assets/pfp/<?= htmlspecialchars($user['avatar_path']) ?>" class="w-full h-full object-cover">
+                            <?php else: ?>
+                                <span class="text-5xl font-black text-blue-400"><?= strtoupper(substr($user['username'], 0, 1)) ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="absolute -bottom-2 -right-2 bg-blue-600 p-2 rounded-xl border-4 border-slate-900 text-white shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center md:text-left">
+                        <h2 class="text-3xl font-black tracking-tight"><?= htmlspecialchars($user['username']) ?></h2>
+                        <div class="inline-flex items-center gap-2 bg-blue-500/20 px-3 py-1 rounded-lg border border-blue-400/30 mt-3">
+                            <span class="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-blue-200">
+                                <?= $user['role'] === 'admin' ? 'Administrátor' : 'Student / Klient' ?>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="p-6 md:p-8">
-            <?php if ($success): ?>
-                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-2xl mb-6 flex items-center gap-3 animate-pulse">
-                    <span>✅</span> <?= $success ?>
-                </div>
-            <?php endif; ?>
+            <div class="p-8 md:p-12">
+                <?php if ($success): ?>
+                    <div class="bg-green-50 border border-green-100 text-green-600 px-6 py-4 rounded-2xl mb-8 flex items-center gap-3 font-bold text-sm">
+                        <span>✅</span> <?= $success ?>
+                    </div>
+                <?php endif; ?>
 
-            <?php if ($error): ?>
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-6 flex items-center gap-3">
-                    <span>⚠️</span> <?= $error ?>
-                </div>
-            <?php endif; ?>
+                <?php if ($error): ?>
+                    <div class="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl mb-8 flex items-center gap-3 font-bold text-sm">
+                        <span>⚠️</span> <?= $error ?>
+                    </div>
+                <?php endif; ?>
 
-            <form method="POST" enctype="multipart/form-data" id="avatar-form" class="hidden">
-                <input type="file" name="avatar" id="avatar-input" onchange="document.getElementById('avatar-form').submit()" accept="image/*">
-            </form>
+                <form method="POST" enctype="multipart/form-data" id="avatar-form" class="hidden">
+                    <input type="file" name="avatar" id="avatar-input" onchange="document.getElementById('avatar-form').submit()" accept="image/*">
+                </form>
 
-            <form method="POST" class="space-y-6">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Uživatelské jméno</label>
-                    <input type="text" value="<?= htmlspecialchars($user['username']) ?>" disabled 
-                           class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-gray-500 cursor-not-allowed font-medium">
-                </div>
-
-                <hr class="border-gray-100">
-
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="text-blue-600">🔒</span> Změna hesla
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nové heslo</label>
-                            <input type="password" name="new_password" placeholder="••••••••"
-                                   class="w-full border border-gray-200 rounded-2xl px-4 py-3 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Potvrzení hesla</label>
-                            <input type="password" name="confirm_password" placeholder="••••••••"
-                                   class="w-full border border-gray-200 rounded-2xl px-4 py-3 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all">
+                <form method="POST" class="space-y-10">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Přihlašovací jméno</label>
+                        <div class="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4">
+                            <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                            <span class="text-gray-500 font-bold"><?= htmlspecialchars($user['username']) ?></span>
+                            <span class="ml-auto text-[10px] font-black text-gray-300 uppercase italic">Nelze měnit</span>
                         </div>
                     </div>
-                </div>
 
-                <div class="pt-4">
-                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98]">
-                        Aktualizovat nastavení
-                    </button>
-                </div>
-            </form>
+                    <div class="h-px bg-gray-100"></div>
+
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
+                            Zabezpečení účtu
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Nové heslo</label>
+                                <input type="password" name="new_password" placeholder="••••••••"
+                                       class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Potvrzení hesla</label>
+                                <input type="password" name="confirm_password" placeholder="••••••••"
+                                       class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium">
+                            </div>
+                        </div>
+                        <p class="mt-4 text-[11px] text-gray-400 italic font-medium">Ponechte prázdné, pokud heslo nechcete měnit. Minimální délka je 6 znaků.</p>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 transform active:scale-[0.98] uppercase tracking-widest text-sm">
+                            Uložit veškeré změny
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    </main>
 
-    <div class="max-w-2xl mx-auto mt-8 flex justify-center items-center gap-6">
-        <a href="logout.php" class="text-red-500 font-bold hover:text-red-700 transition">Odhlásit se</a>
-    </div>
+    <?php include 'includes/footer.php'; ?>
 
 </body>
 </html>
