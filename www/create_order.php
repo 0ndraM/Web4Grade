@@ -2,8 +2,9 @@
 session_start();
 require_once 'config/db.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'client') {
-    header("Location: index.php");
+if (!isset($_SESSION['user_id']) //|| $_SESSION['role'] !== 'client'
+) {
+    header("Location: index.php#login");
     exit;
 }
 
@@ -65,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nová zakázka</title>
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
@@ -115,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </button>
         </form>
     </div>
-
+    <?php include 'includes/footer.php'; ?>
 <script>
 function updateFileList() {
     const input = document.getElementById('file-input');

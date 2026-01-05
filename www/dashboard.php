@@ -79,12 +79,16 @@ $currentUser = $stmtU->fetch();
     <title>Dashboard | Objednávkový systém</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 flex flex-col min-h-screen">
 
- <?php include 'includes/header.php'; ?>
+    <?php include 'includes/header.php'; ?>
 
-    <main class="max-w-7xl mx-auto px-4">
-         <h1 class="text-lg md:text-xl font-bold text-gray-800 tracking-tight"><?= $role === 'admin' ? 'Všechny objednávky' : 'Moje objednávky' ?></h1>
+    <main class="max-w-7xl mx-auto px-4 w-full flex-grow py-10">
+        
+        <h1 class="text-xl md:text-2xl font-black text-gray-900 mb-8">
+            <?= $role === 'admin' ? 'Správa projektů' : 'Moje zakázky' ?>
+        </h1>
+
         <?php if ($role === 'admin'): ?>
         <div class="grid grid-cols-3 gap-4 mb-8">
             <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
@@ -102,8 +106,6 @@ $currentUser = $stmtU->fetch();
         </div>
         <?php endif; ?>
 
-<div class="max-w-7xl mx-auto px-4">
-    
     <?php if ($role === 'admin'): ?>
     <div class="flex justify-end mb-4">
         <form method="GET" class="flex items-center gap-2">
@@ -190,8 +192,6 @@ $currentUser = $stmtU->fetch();
         <?php endforeach; ?>
     </div>
 
-</div>
-</div>
     </main>
 
     <?php if ($role === 'client'): ?>
@@ -201,6 +201,6 @@ $currentUser = $stmtU->fetch();
             </svg>
         </a>
     <?php endif; ?>
-
+<?php include 'includes/footer.php'; ?>
 </body>
 </html>
