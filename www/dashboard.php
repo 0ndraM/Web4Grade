@@ -94,15 +94,20 @@ if ($role === 'admin') {
             </h1>
             
             <?php if ($role === 'admin'): ?>
-            <form method="GET" class="flex items-center gap-3">
-                <label class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Řadit dle:</label>
-                <select name="sort" onchange="this.form.submit()" class="text-sm bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border border-gray-100 dark:border-slate-800 rounded-xl p-2.5 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    <option value="default" <?= $sort=='default'?'selected':'' ?>>⚡ Aktivity</option>
-                    <option value="date_desc" <?= $sort=='date_desc'?'selected':'' ?>>📅 Nejnovější</option>
-                    <option value="price_desc" <?= $sort=='price_desc'?'selected':'' ?>>💰 Ceny</option>
-                    <option value="status" <?= $sort=='status'?'selected':'' ?>>📌 Stavu</option>
-                </select>
-            </form>
+            <div class="flex items-center gap-4">
+                <a href="logs.php" class="bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-400 border border-gray-100 dark:border-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition shadow-sm">
+                    📜 Logy
+                </a>
+                <form method="GET" class="flex items-center gap-3">
+                    <label class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Řadit dle:</label>
+                    <select name="sort" onchange="this.form.submit()" class="text-sm bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border border-gray-100 dark:border-slate-800 rounded-xl p-2.5 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <option value="default" <?= $sort=='default'?'selected':'' ?>>⚡ Aktivity</option>
+                        <option value="date_desc" <?= $sort=='date_desc'?'selected':'' ?>>📅 Nejnovější</option>
+                        <option value="price_desc" <?= $sort=='price_desc'?'selected':'' ?>>💰 Ceny</option>
+                        <option value="status" <?= $sort=='status'?'selected':'' ?>>📌 Stavu</option>
+                    </select>
+                </form>
+            </div>
             <?php endif; ?>
         </div>
 

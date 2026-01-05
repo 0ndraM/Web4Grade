@@ -15,15 +15,7 @@ if (isset($_SESSION['user_id'])) {
         </a>
         
         <div class="flex items-center gap-2 md:gap-4">
-            <button onclick="toggleDarkMode()" class="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-300" title="Přepnout režim">
-                <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.95 16.95l.707.707M7.757 7.757l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                </svg>
-                <svg id="moon-icon" class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-            </button>
-
+           
             <?php if ($headerUser): ?>
                 <div class="hidden md:flex items-center gap-6 mr-4 border-r border-gray-100 dark:border-slate-800 pr-6">
                     <a href="dashboard.php" class="text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 transition">Moje zakázky</a>

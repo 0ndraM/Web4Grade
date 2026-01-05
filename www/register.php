@@ -2,6 +2,14 @@
 session_start();
 require_once 'config/db.php';
 
+   function logLoginAttempt($username, $status) {
+    global $pdo;
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $stmt = $pdo->prepare("INSERT INTO acces_logy (autor, akce) VALUES (?, ?)");
+    $akce = "Přihlášení uživatele '$username' - $status (IP: $ip)";
+    $stmt->execute([$username, $akce]);
+}
+
 // Pokud už je uživatel přihlášen, přesměrujeme ho na dashboard
 if (isset($_SESSION['user_id'])) {
     header("Location: dashboard.php");
@@ -35,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $pdo->lastInsertId();
                 $_SESSION['username'] = $username;
                 $_SESSION['role'] = 'client';
-
+                logLoginAttempt($username, 'úspěšné');
                 header("Location: dashboard.php");
                 exit;
             } catch (PDOException $e) {
@@ -117,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <p class="text-center text-gray-400 dark:text-slate-600 text-[10px] uppercase tracking-[0.3em] font-bold mt-8 transition-colors duration-300">
-                Registrací souhlasíš s podmínkami WebGrade
+                Registrací souhlasíš s podmínkami Web4Grade
             </p>
         </div>
     </main>

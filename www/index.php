@@ -1,6 +1,14 @@
 <?php
    session_start();
    require_once 'config/db.php';
+   function logLoginAttempt($username, $status) {
+    global $pdo;
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $stmt = $pdo->prepare("INSERT INTO acces_logy (autor, akce) VALUES (?, ?)");
+    $akce = "Přihlášení uživatele '$username' - $status (IP: $ip)";
+    $stmt->execute([$username, $akce]);
+}
+
    
    $error = '';
    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
@@ -15,9 +23,11 @@
            $_SESSION['user_id'] = $user['id'];
            $_SESSION['username'] = $user['username'];
            $_SESSION['role'] = $user['role'];
+           logLoginAttempt($username, 'úspěšné');
            header("Location: dashboard.php");
            exit;
        } else {
+           logLoginAttempt($username, 'neúspěšné - špatné heslo');
            $error = "Neplatné přihlašovací údaje. Zkuste to prosím znovu.";
        }
    }
