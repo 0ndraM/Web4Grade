@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-blue-900/5 dark:shadow-none border border-gray-100 dark:border-slate-800 transition-colors duration-300">
                 <div class="text-center mb-10">
                     <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Vytvořit účet</h1>
-                    <p class="text-gray-400 dark:text-slate-500 text-sm mt-2 font-medium">Připoj se k WebGrade a získej svůj web</p>
+                    <p class="text-gray-400 dark:text-slate-500 text-sm mt-2 font-medium">Připoj se k Web4Grade a získej svůj web</p>
                 </div>
 
                 <?php if ($error): ?>
