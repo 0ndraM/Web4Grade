@@ -64,10 +64,10 @@
                </span>
                <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
                   Máš zadání na web? <br>
-                  <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">Nech to na mně.</span>
+                  <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">Nech to na nás.</span>
                </h1>
                <p class="text-xl text-blue-100 mb-10 max-w-xl leading-relaxed">
-                  Soustřeď se na to důležité, zatímco já postavím tvůj školní web. Kompletní kód, moderní design a případná dokumentace v ceně.
+                  Soustřeď se na to důležité, zatímco my postavíme tvůj školní web. Kompletní kód, moderní design a případná dokumentace v ceně.
                </p>
                <div class="flex flex-wrap gap-4">
                   <a href="register.php" class="bg-white text-blue-700 px-10 py-4 rounded-xl text-lg font-bold hover:bg-blue-50 transition shadow-xl">Chci zadat projekt</a>
