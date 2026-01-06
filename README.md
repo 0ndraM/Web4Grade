@@ -1,81 +1,139 @@
-### 1. Architektura a Uživatelské Role
+# Web4Grade
 
-Systém bude mít dvě rozhraní postavená na stejném základu:
+**Web4Grade** je webová aplikace pro správu objednávek školních webových projektů. Umožňuje studentům zadávat projekty, komunikovat s vývojářem a sledovat stav jejich zakázek.
 
-* **Klient (Žák):** Může vytvořit objednávku, sledovat stav, platit (QR kód) a psát si s tebou.
-* **Admin (Ty):** Vidíš seznam všech zakázek, měníš jejich stavy (Čeká na platbu -> Zaplaceno -> Hotovo) a odpovídáš v chatu.
+## 🚀 Funkce
 
-### 2. Návrh Databáze (ER Diagram)
+- **Registrace a přihlášení** - Studenti si mohou vytvořit účet a přihlásit se do systému
+- **Správa objednávek** - Vytváření nových objednávek s detailním popisem projektu
+- **Integrovaný chat** - Komunikace mezi studentem a vývojářem přímo u každé zakázky
+- **Sledování stavu** - Přehled aktuálního stavu zakázky (new, pending_payment, paid, in_progress, finished)
+- **Bezpečná platba** - Platba pomocí QR kódu po zhlédnutí testovací verze
+- **Admin panel** - Správa všech zakázek, změna stavů a komunikace s klienty
+- **Dark mode** - Podpora tmavého režimu
+- **Responsive design** - Optimalizováno pro všechna zařízení
 
-Toto je nejdůležitější část. Pokud máš špatnou DB, kódování bude bolet.
+## 📋 Požadavky
 
-* **`users`**: `id`, `username`, `email`, `password_hash`, `role` (admin/client)
-* **`orders`**: `id`, `client_id`, `title`, `description`, `price`, `status` (new, pending_payment, paid, in_progress, finished), `created_at`
-* **`messages`**: `id`, `order_id`, `sender_id`, `message_text`, `sent_at`
+- Docker & Docker Compose
+- PHP 8.2+
+- MySQL 8.0+
+- Apache/Nginx
 
-### 3. Logika Klíčových Funkcí
+## ⚙️ Instalace
 
-#### A. Objednávkový proces
+### Pomocí Dockeru (doporučeno)
 
-1. Klient vyplní formulář (Název webu, popis, spolužák pro odkaz).
-2. Vytvoří se záznam v `orders` se stavem `new`.
-3. Ty (Admin) se na to podíváš, potvrdíš cenu a změníš stav na `pending_payment`.
-
-#### B. Platba pomocí QR kódu
-
-Místo složité integrace platební brány použij knihovnu pro generování **QR Plateb**.
-
-* V PHP vygeneruješ řetězec pro SPAYD (Standard Payment Data).
-* Zobrazíš ho klientovi v detailu objednávky. Jakmile ti peníze přijdou na účet, ručně v adminu klikneš na "Zaplaceno".
-
-#### C. Chat systém
-
-Chat bude vázaný na konkrétní objednávku (`order_id`).
-
-* Při otevření detailu objednávky se načtou všechny zprávy, kde se `order_id` rovná ID dané objednávky.
-* Zprávy seřadíš podle `sent_at` vzestupně.
-
----
-
-### 4. Navigační mapa webu (Sitemap)
-
-| Stránka | Přístup | Funkce |
-| --- | --- | --- |
-| `index.php` | Veřejné | Landing page + Login/Registrace |
-| `dashboard.php` | Klient | Seznam mých objednávek + tlačítko "Nová objednávka" |
-| `order_detail.php` | Obě role | Detail zakázky, stav, QR kód, **Chatovací okno** |
-| `admin.php` | Jen Ty | Přehled všech zakázek od všech lidí, filtrace podle stavu |
-| `profile.php` | Obě role | Změna hesla, nastavení profilu |
-
----
-
-### 5. Ukázka struktury složek (MVC-ish)
-
-Aby se ti s tím v Dockeru dobře pracovalo, doporučuji toto rozdělení:
-
-```text
-www/
-├── config/
-│   └── db.php         # Připojení k PDO
-├── includes/
-│   ├── header.php     # Horní menu
-│   └── functions.php  # Pomocné funkce (checkLogin, getStatus atd.)
-├── css/
-│   └── style.css      # Tailwind nebo vlastní CSS
-├── views/             # Samotné HTML šablony
-│   ├── chat_view.php
-│   └── order_form.php
-├── index.php          # Rozcestník
-└── order.php          # Logika konkrétní objednávky
-
+1. Naklonujte repozitář:
+```bash
+git clone https://github.com/0ndraM/muj-projekt.git
+cd muj-projekt
 ```
 
----
+2. Spusťte Docker kontejnery:
+```bash
+docker-compose up -d
+```
 
-### 6. Bezpečnost (Na co si dát pozor)
+3. Importujte databázovou strukturu:
+```bash
+docker exec -i projekt_db mysql -uuser -puser_password objednavkovy_system < db.sql
+```
 
-1. **SQL Injection:** Vždy používej prepared statements (`$stmt->prepare(...)`).
-2. **XSS:** Při výpisu chatu a popisu objednávky vždy používej `htmlspecialchars()`.
-3. **Autorizace:** V detailu objednávky musíš zkontrolovat: `IF (user_id == order_client_id OR role == 'admin')`. Jinak se ti žáci budou dívat navzájem na zadání.
+4. Aplikace je dostupná na:
+   - **Web:** http://localhost:8080
+   - **phpMyAdmin:** http://localhost:8081
 
-**Chceš, abych ti napsal SQL skript pro vytvoření těch tabulek, nebo tě zajímá PHP kód pro odesílání zpráv v chatu?**
+### Výchozí přihlašovací údaje
+
+- **Admin účet:**
+  - Uživatelské jméno: `admin`
+  - Heslo: `admin123` (změňte po prvním přihlášení)
+
+## 🗂️ Struktura projektu
+
+```
+muj-projekt/
+├── www/                      # Zdrojové soubory aplikace
+│   ├── config/              # Konfigurace databáze
+│   ├── includes/            # Společné komponenty (header, footer, funkce)
+│   ├── assets/              # Statické soubory (CSS, JS, obrázky)
+│   ├── index.php           # Hlavní stránka
+│   ├── dashboard.php       # Dashboard klienta
+│   ├── create_order.php    # Vytvoření nové zakázky
+│   ├── order_detail.php    # Detail zakázky s chatem
+│   ├── register.php        # Registrace
+│   └── ...
+├── db.sql                   # SQL skript pro vytvoření databáze
+├── docker-compose.yml       # Docker compose konfigurace
+└── README.md               # Dokumentace
+```
+
+## 💾 Databázová struktura
+
+### Tabulky
+
+- **`users`** - Uživatelské účty (studenti a admin)
+- **`orders`** - Objednávky webových projektů
+- **`messages`** - Chatové zprávy u jednotlivých zakázek
+- **`acces_logy`** - Logy přihlášení a přístupu
+
+## 🔒 Bezpečnost
+
+- **Hesla** jsou hashována pomocí `password_hash()` s BCrypt algoritmem
+- **SQL Injection** prevence pomocí prepared statements
+- **XSS ochrana** pomocí `htmlspecialchars()`
+- **Autorizace** - kontrola přístupu k datům podle role a vlastnictví
+- **HTTPS** připojení (doporučeno v produkci)
+
+## 🎨 Technologie
+
+- **Frontend:** HTML5, Tailwind CSS, JavaScript
+- **Backend:** PHP 8.2
+- **Databáze:** MySQL 8.0
+- **Server:** Apache
+- **Kontejnerizace:** Docker & Docker Compose
+
+## 📝 Použití
+
+### Pro studenty (klienty)
+
+1. Zaregistrujte se na hlavní stránce
+2. Přihlaste se do systému
+3. Vytvořte novou zakázku s popisem projektu
+4. Komunikujte s vývojářem přes integrovaný chat
+5. Sledujte stav vaší zakázky
+6. Po dokončení testovací verze zaplaťte pomocí QR kódu
+
+### Pro administrátora
+
+1. Přihlaste se pomocí admin účtu
+2. Prohlížejte všechny zakázky v dashboardu
+3. Měňte stavy zakázek podle pokroku
+4. Komunikujte s klienty přes chat
+5. Spravujte systémové logy
+
+## 🛠️ Konfigurace
+
+Databázové připojení lze upravit v souboru `www/config/db.php` nebo v `docker-compose.yml`:
+
+```yaml
+environment:
+  MYSQL_DATABASE: objednavkovy_system
+  MYSQL_USER: user
+  MYSQL_PASSWORD: user_password
+```
+
+## 📄 Licence
+
+Tento projekt je vytvořen pro studijní účely.
+
+## 👤 Autor
+
+**0ndra_m_**
+- Email: ondrejmuhlhandel@gmail.com
+- Instagram: [@web4grade](https://www.instagram.com/web4grade/)
+
+## 🤝 Přispívání
+
+Příspěvky jsou vítány! Prosím, vytvořte issue nebo pull request.

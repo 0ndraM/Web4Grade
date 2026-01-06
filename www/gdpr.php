@@ -37,7 +37,7 @@ require_once 'config/db.php';
                 <section>
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">1. Správce osobních údajů</h3>
                     <p>
-                        Správcem osobních údajů v rámci projektu <strong>WebGrade</strong> je provozovatel (dále jen „správce“). 
+                        Správcem osobních údajů v rámci projektu <strong>Web4Grade</strong> je provozovatel (dále jen „správce“). 
                         V případě dotazů ohledně tvých dat mě můžeš kontaktovat na e-mailu: 
                         <span class="text-blue-600 dark:text-blue-400 font-bold">ondrejmuhlhandel@gmail.com</span>.
                     </p>
@@ -76,7 +76,7 @@ require_once 'config/db.php';
                 <section>
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">5. Předávání dat třetím stranám</h3>
                     <p>
-                        <strong>Tvá data nikomu neprodáváme ani nepředáváme.</strong> Vše zůstává v rámci WebGrade. 
+                        <strong>Tvá data nikomu neprodáváme ani nepředáváme.</strong> Vše zůstává v rámci Web4Grade. 
                         Výjimkou mohou být pouze zákonné požadavky orgánů veřejné moci.
                     </p>
                 </section>

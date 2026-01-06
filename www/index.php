@@ -37,7 +37,7 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="description" content="WebGrade nabízí profesionální tvorbu webových stránek pro školní projekty. Získejte moderní web s kompletním kódem a dokumentací.">
+      <meta name="description" content="Web4Grade nabízí profesionální tvorbu webových stránek pro školní projekty. Získejte moderní web s kompletním kódem a dokumentací.">
       <title>Web4Grade | Profesionální řešení školních projektů</title>
       <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
       <script src="https://cdn.tailwindcss.com"></script>
@@ -234,7 +234,7 @@
          <div class="max-w-3xl mx-auto">
             <div class="text-center mb-16">
                <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">Často kladené otázky</h2>
-               <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">Vše, co potřebuješ vědět o WebGrade.</p>
+               <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">Vše, co potřebuješ vědět o Web4Grade.</p>
                <div class="h-1.5 w-16 bg-blue-600 mx-auto mt-6 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.3)]"></div>
             </div>
             <div class="space-y-4">
