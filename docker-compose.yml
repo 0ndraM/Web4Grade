@@ -42,6 +42,15 @@ services:
     networks:
       - projekt_network
 
+  # Composer (Správa závislostí)
+  composer:
+    image: composer:latest
+    container_name: projekt_composer
+    volumes:
+      - ./www:/app
+    networks:
+      - projekt_network
+
 networks:
   projekt_network:
     driver: bridge
