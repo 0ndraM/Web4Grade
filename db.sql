@@ -2,7 +2,6 @@
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `role` enum('client','admin') DEFAULT 'client',
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
